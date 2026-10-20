@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ModMetaData>
+  <packageId>phildeluca.settlementinformation</packageId>
+  <name>Ketjak's Settlement Information</name>
+  <author>Ketjak</author>
+  <supportedVersions>
+    <li>1.5</li>
+  </supportedVersions>
+  <description>Every settlement on the world map carries a label under its icon, always on, not only when you select or hover it:
+
+Name
+Faction
+Strength
+Restock
+
+Strength is the Rim War rating for that settlement. If Rim War is not installed the line is left out; if it is installed but the settlement has no rating, the line shows a dash. Rim War is not required.
+
+The restock line says how many days until the settlement's trade stock refreshes, "not visited yet" if you have never traded there, "stocked" if it has refreshed since your last visit, and N/A for your own settlements. Reading it never opens the stock, so it does not mark a settlement as visited.
+
+No settings, nothing written to your save. Safe to add to or remove from an ongoing game.</description>
+  <!-- No Harmony patches and no modDependency. The label is drawn from a
+       GameComponent's GameComponentOnGUI. Rim War is read by reflection in
+       RimWar/RimWarReader.cs and is deliberately NOT declared here.
+       Documents live in the umbrella folder prefixed si-. -->
+</ModMetaData>
