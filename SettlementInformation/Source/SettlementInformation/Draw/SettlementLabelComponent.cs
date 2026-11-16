@@ -17,7 +17,7 @@ namespace SettlementInformation.Draw
     {
         private class Entry
         {
-            public Settlement Settlement;
+            public WorldObject Settlement;
             public string Text;
             public Vector2 Size;
         }
@@ -65,7 +65,7 @@ namespace SettlementInformation.Draw
                 for (int i = 0; i < entries.Count; i++)
                 {
                     Entry e = entries[i];
-                    Settlement s = e.Settlement;
+                    WorldObject s = e.Settlement;
                     if (s == null || s.Destroyed || s.HiddenBehindTerrainNow())
                     {
                         continue;
@@ -112,6 +112,26 @@ namespace SettlementInformation.Draw
                 string text = Build(s, now);
                 entries.Add(new Entry { Settlement = s, Text = text, Size = Text.CalcSize(text) });
             }
+
+            // Player-held maps that are not settlements (a destroyed settlement, site, camp):
+            // vanilla gives them no label from us, so draw a short one. Pop is cached here,
+            // once a second, never per frame.
+            List<MapParent> parents = Find.WorldObjects.MapParents;
+            for (int i = 0; i < parents.Count; i++)
+            {
+                MapParent mp = parents[i];
+                if (mp is Settlement || !mp.HasMap || mp.Map == null)
+                {
+                    continue;
+                }
+                int pop = PlayerPopulation(mp.Map);
+                if (pop <= 0)
+                {
+                    continue;
+                }
+                string text = mp.LabelCap + "\nPop: " + pop;
+                entries.Add(new Entry { Settlement = mp, Text = text, Size = Text.CalcSize(text) });
+            }
         }
 
         private string Build(Settlement s, int now)
@@ -132,7 +152,19 @@ namespace SettlementInformation.Draw
             }
 
             sb.Append('\n').Append(RestockLine(s, f, now));
+            if (f != null && f.IsPlayer && s.HasMap && s.Map != null)
+            {
+                sb.Append("\nPop: ").Append(PlayerPopulation(s.Map));
+            }
             return sb.ToString();
+        }
+
+        // Free player colonists spawned on the map. Prisoners, slaves and animals are
+        // not counted (colonists only, the default asked for). Pawns in a downed or
+        // incapacitated state still count; pawns off the map (caravans) do not.
+        private static int PlayerPopulation(Map map)
+        {
+            return map.mapPawns.FreeColonistsSpawnedCount;
         }
 
         // Never touches StockListForReading - that regenerates stock and marks
